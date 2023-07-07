@@ -1,15 +1,38 @@
-CREATE DATABASE testing_system_assignment_1;
-USE testing_system_assignment_1;
+CREATE DATABASE testing_system_assignment_2;
+USE testing_system_assignment_2;
 
 CREATE TABLE Department(
-	DepartmentID TINYINT PRIMARY KEY,
+	DepartmentID TINYINT PRIMARY KEY ,
     DepartmantName VARCHAR(30)
     );
     
+    	-- addd data Department
+	INSERT INTO Department (DepartmentID,DepartmantName)
+    VALUES		(1, 'MAKETING'),
+				(2, 'SALE'),
+				(3, 'BAO VE'),
+                (4, 'NHAN SU'),
+                (5, 'KY THUAT'),
+                (6, 'TAI CHINH'),
+                (7, 'PHO GIAM DOC'),
+                (8, 'GIAM DOC'),
+                (9, 'THU KI'),
+				(10, 'BAN HANG');
+                
+                
 CREATE TABLE `Position` (
 	PositionID TINYINT PRIMARY KEY,
     PositionName VARCHAR(30)
 );
+
+    	-- addd data Position
+	INSERT INTO `Position` (PositionID,PositionName)
+    VALUES		(1, 'Dev'),
+				(2, 'Tester'),
+				(3, 'Scrum Master'),
+                (4, 'PM'),
+                (5, 'Data Engineer');
+               
 
 CREATE TABLE `Account` (
 AccountID TINYINT PRIMARY KEY,
@@ -22,11 +45,18 @@ CreateDate DATE,
 FOREIGN KEY (DepartmentID) REFERENCES Department (DepartmentID),
 FOREIGN KEY (PositionID) REFERENCES `Position` (PositionID)
 );
+  	-- addd data `Account`
+	INSERT INTO `Account` (AccountID,Email,Username,Fullname,DepartmentID,PositionID,CreateDate)
+    VALUES		(1, 'ngoanhvu0406@gmail.com', 'ngoanhvuyb', 'ngoanhvu', '1', '1', '04/06/2022'),
+				(2, 'Tester'),
+				(3, 'Scrum Master'),
+                (4, 'PM)'),
+                (5, 'Data Engineer');
 
 CREATE TABLE `Group` (
 	GroupID TINYINT PRIMARY KEY,
     GroupName VARCHAR(30),
-    CreatorID TINYINT Unique Key,
+    CreatorID TINYINT ,
     CreateDate DATE
 );
 
@@ -56,8 +86,7 @@ CREATE TABLE Question (
     CreatorID TINYINT,
     CreateDate DATE,
     FOREIGN KEY (CategoryID) REFERENCES CategoryQuestion (CategoryID),
-	FOREIGN KEY (TypeID) REFERENCES TypeQuestion (TypeID),
-	FOREIGN KEY (CreatorID) REFERENCES `Group` (CreatorID)
+	FOREIGN KEY (TypeID) REFERENCES TypeQuestion (TypeID)
 );
 
 CREATE TABLE Answer (
@@ -76,7 +105,6 @@ CREATE TABLE Exam (
     Duration TIME,
     CreatorID TINYINT,
     CreateDate DATE,
-    FOREIGN KEY (CreatorID) REFERENCES `Group` (CreatorID),
 	FOREIGN KEY (CategoryID) REFERENCES CategoryQuestion (CategoryID)
 );
 
@@ -87,3 +115,5 @@ CREATE TABLE ExamQuestion (
     FOREIGN KEY (ExamID) REFERENCES Exam (ExamID)
 );
 
+
+             
