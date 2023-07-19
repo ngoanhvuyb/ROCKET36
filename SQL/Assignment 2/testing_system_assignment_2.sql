@@ -1,119 +1,279 @@
-CREATE DATABASE testing_system_assignment_2;
-USE testing_system_assignment_2;
+DROP DATABASE IF EXISTS SimpleDB;
+CREATE DATABASE SimpleDB;
+USE SimpleDB;
 
+
+DROP TABLE IF EXISTS Department;
+-- TẠO BẢNG "Department"
 CREATE TABLE Department(
-	DepartmentID TINYINT PRIMARY KEY ,
-    DepartmantName VARCHAR(30)
-    );
-    
-    	-- addd data Department
-	INSERT INTO Department (DepartmentID,DepartmantName)
-    VALUES		(1, 'MAKETING'),
-				(2, 'SALE'),
-				(3, 'BAO VE'),
-                (4, 'NHAN SU'),
-                (5, 'KY THUAT'),
-                (6, 'TAI CHINH'),
-                (7, 'PHO GIAM DOC'),
-                (8, 'GIAM DOC'),
-                (9, 'THU KI'),
-				(10, 'BAN HANG');
-                
-                
+	DepartmentID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	DepartmentName NVARCHAR(30) NOT NULL UNIQUE KEY
+);
+
+DROP TABLE IF EXISTS Position;
+-- TẠO BẢNG "Position"
 CREATE TABLE `Position` (
-	PositionID TINYINT PRIMARY KEY,
-    PositionName VARCHAR(30)
+	PositionID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	PositionName ENUM('Dev','Test','Scrum Master','PM') NOT NULL UNIQUE KEY  --  sorry mọi người. đoạn enum này mình nhầm, nó cần unique key để đảm bảo tạo ra 1 list vị trí ko bị trùng lặp, tức là bảng này dữ liệu ko trùng lặp thì nó mới có ý nghĩa 
 );
 
-    	-- addd data Position
-	INSERT INTO `Position` (PositionID,PositionName)
-    VALUES		(1, 'Dev'),
-				(2, 'Tester'),
-				(3, 'Scrum Master'),
-                (4, 'PM'),
-                (5, 'Data Engineer');
-               
 
-CREATE TABLE `Account` (
-AccountID TINYINT PRIMARY KEY,
-Email VARCHAR(30),
-Username VARCHAR(30),
-Fullname VARCHAR(30),
-DepartmentID TINYINT,
-PositionID TINYINT,
-CreateDate DATE,
-FOREIGN KEY (DepartmentID) REFERENCES Department (DepartmentID),
-FOREIGN KEY (PositionID) REFERENCES `Position` (PositionID)
-);
-  	-- addd data `Account`
-	INSERT INTO `Account` (AccountID,Email,Username,Fullname,DepartmentID,PositionID,CreateDate)
-    VALUES		(1, 'ngoanhvu0406@gmail.com', 'ngoanhvuyb', 'ngoanhvu', '1', '1', '04/06/2022'),
-				(2, 'Tester'),
-				(3, 'Scrum Master'),
-                (4, 'PM)'),
-                (5, 'Data Engineer');
-
-CREATE TABLE `Group` (
-	GroupID TINYINT PRIMARY KEY,
-    GroupName VARCHAR(30),
-    CreatorID TINYINT ,
-    CreateDate DATE
+DROP TABLE IF EXISTS `Account`;
+-- TẠO BẢNG "Account"
+CREATE TABLE `Account`(
+	AccountID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	Email VARCHAR(50) NOT NULL UNIQUE KEY,
+	Username VARCHAR(50) NOT NULL UNIQUE KEY,
+	FullName NVARCHAR(50) NOT NULL,
+	DepartmentID TINYINT UNSIGNED NOT NULL,
+	PositionID TINYINT UNSIGNED NOT NULL,
+	CreateDate DATETIME DEFAULT NOW(),
+	FOREIGN KEY(DepartmentID) REFERENCES Department(DepartmentID),
+	FOREIGN KEY(PositionID) REFERENCES `Position`(PositionID)
 );
 
-CREATE TABLE GroupAccount (
-	GroupID TINYINT ,
-    AccountID TINYINT ,
-    JoinDate DATE,
-    FOREIGN KEY (GroupID) REFERENCES `Group` (GroupID),
-    FOREIGN KEY (AccountID) REFERENCES `Account` (AccountID)
+
+DROP TABLE IF EXISTS `Group`;
+-- TẠO BẢNG "Group"
+CREATE TABLE `Group`(
+	GroupID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	GroupName NVARCHAR(50) NOT NULL UNIQUE KEY,
+	CreatorID TINYINT UNSIGNED,
+	CreateDate DATETIME DEFAULT NOW(),
+	FOREIGN KEY(CreatorID) REFERENCES `Account`(AccountId)
 );
 
+
+DROP TABLE IF EXISTS GroupAccount;
+-- TẠO BẢNG "GroupAccount"
+CREATE TABLE GroupAccount(
+	GroupID TINYINT UNSIGNED NOT NULL,
+	AccountID TINYINT UNSIGNED NOT NULL,
+	JoinDate DATETIME DEFAULT NOW(),
+	PRIMARY KEY (GroupID,AccountID),           -- BẢNG NÀY CẨN 2 FIELD ĐỂ TẠO THÀNH KEY VÌ KO CÓ DỮ LIỆU "ĐƠN LẺ" NÀO ĐỦ "UNIQUE" (KO BỊ TRÙNG LẶP) ĐỂ LÀM ĐỊNH DANH
+	FOREIGN KEY(GroupID) REFERENCES `Group`(GroupID),
+	FOREIGN KEY(AccountID) REFERENCES `Account`(AccountID)
+);
+
+
+DROP TABLE IF EXISTS TypeQuestion;
+-- TẠO BẢNG "TypeQuestion"
 CREATE TABLE TypeQuestion (
-	TypeID SMALLINT PRIMARY KEY,
-    TypeName VARCHAR(30)
-);
-
-CREATE TABLE CategoryQuestion (
-	CategoryID TINYINT PRIMARY KEY,
-    CategoryName VARCHAR(30)
-);
-
-CREATE TABLE Question (
-	QuestionID SMALLINT PRIMARY KEY,
-    Content VARCHAR(30),
-    CategoryID TINYINT,
-    TypeID SMALLINT,
-    CreatorID TINYINT,
-    CreateDate DATE,
-    FOREIGN KEY (CategoryID) REFERENCES CategoryQuestion (CategoryID),
-	FOREIGN KEY (TypeID) REFERENCES TypeQuestion (TypeID)
-);
-
-CREATE TABLE Answer (
-	AnswerID INT PRIMARY KEY,
-    Content VARCHAR(30),
-    QuestionID SMALLINT,
-    isCorrect BIT(1),
-	FOREIGN KEY (QuestionID) REFERENCES Question (QuestionID)
-);
-
-CREATE TABLE Exam (
-	ExamID TINYINT PRIMARY KEY,
-    `Code` VARCHAR(30),
-    Title VARCHAR(30),
-    CategoryID TINYINT,
-    Duration TIME,
-    CreatorID TINYINT,
-    CreateDate DATE,
-	FOREIGN KEY (CategoryID) REFERENCES CategoryQuestion (CategoryID)
-);
-
-CREATE TABLE ExamQuestion (
-	ExamID TINYINT,
-    QuestionID SMALLINT,
-	FOREIGN KEY (QuestionID) REFERENCES Question (QuestionID),
-    FOREIGN KEY (ExamID) REFERENCES Exam (ExamID)
+	TypeID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	TypeName ENUM('Essay','Multiple-Choice') NOT NULL UNIQUE KEY    --  sorry mọi người. đoạn enum này mình nhầm, nó cần unique key để đảm bảo tạo ra 1 list vị trí ko bị trùng lặp, tức là bảng này dữ liệu ko trùng lặp thì nó mới có ý nghĩa 
 );
 
 
-             
+DROP TABLE IF EXISTS CategoryQuestion;
+-- TẠO BẢNG "CategoryQuestion"
+CREATE TABLE CategoryQuestion(
+	CategoryID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	CategoryName NVARCHAR(50) NOT NULL UNIQUE KEY          --  NVARCHAR DÙNG ĐỂ INSERT DC VIẾT TIẾNG VIỆT (unicode)
+);
+
+
+DROP TABLE IF EXISTS Question;
+-- TẠO BẢNG "CategoryQuestion"
+CREATE TABLE Question(
+	QuestionID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	Content NVARCHAR(100) NOT NULL,
+	CategoryID TINYINT UNSIGNED NOT NULL,
+	TypeID TINYINT UNSIGNED NOT NULL,
+	CreatorID TINYINT UNSIGNED NOT NULL,
+	CreateDate DATETIME DEFAULT NOW(),
+	FOREIGN KEY(CategoryID) REFERENCES CategoryQuestion(CategoryID),
+	FOREIGN KEY(TypeID) REFERENCES TypeQuestion(TypeID),
+	FOREIGN KEY(CreatorID) REFERENCES `Account`(AccountId)
+);
+
+
+DROP TABLE IF EXISTS Answer;
+-- TẠO BẢNG "Answer"
+CREATE TABLE Answer(
+	AnswerID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	Content NVARCHAR(100) NOT NULL,
+	QuestionID TINYINT UNSIGNED NOT NULL,
+	isCorrect BIT DEFAULT 1,                     -- DÙNG DEFAUTL (1 TRONG CÁC LOẠI CONSTRAINT) ĐỂ SET GIÁ TRỊ MẶC ĐỊNH = 1, VỚI DEFAULT THÌ KO CẦN INSERT TRƯỜNG NÀY KHI CHÈN DỮ LIỆU)
+	FOREIGN KEY(QuestionID) REFERENCES Question(QuestionID)
+);
+
+
+DROP TABLE IF EXISTS Exam;
+-- TẠO BẢNG "Exam"
+CREATE TABLE Exam(
+	ExamID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	`Code` CHAR(10) NOT NULL,
+	Title NVARCHAR(50) NOT NULL,
+	CategoryID TINYINT UNSIGNED NOT NULL,
+	Duration TINYINT UNSIGNED NOT NULL,
+	CreatorID TINYINT UNSIGNED NOT NULL,
+	CreateDate DATETIME DEFAULT NOW(),           -- DÙNG DEFAUTL (1 TRONG CÁC LOẠI CONSTRAINT) ĐỂ SET GIÁ TRỊ MẶC ĐỊNH = THỜI GIAN HIỆN TẠI, VỚI DEFAULT THÌ KO CẦN INSERT TRƯỜNG NÀY KHI CHÈN DỮ LIỆU)
+	FOREIGN KEY(CategoryID) REFERENCES CategoryQuestion(CategoryID),
+	FOREIGN KEY(CreatorID) REFERENCES `Account`(AccountId)
+);
+
+
+DROP TABLE IF EXISTS ExamQuestion;
+-- TẠO BẢNG "Exam"
+CREATE TABLE ExamQuestion(
+	ExamID TINYINT UNSIGNED NOT NULL,
+	QuestionID TINYINT UNSIGNED NOT NULL,
+	FOREIGN KEY(QuestionID) REFERENCES Question(QuestionID), 
+	FOREIGN KEY(ExamID) REFERENCES Exam(ExamID) ,
+	PRIMARY KEY (ExamID,QuestionID)            -- BẢNG NÀY CẨN 2 FIELD ĐỂ TẠO THÀNH KEY VÌ KO CÓ DỮ LIỆU "ĐƠN LẺ" NÀO ĐỦ "UNIQUE" (KO BỊ TRÙNG LẶP) ĐỂ LÀM ĐỊNH DANH
+);
+
+
+-- CHÈN DỮ LIỆU (INSERT DATA) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+-- CHÈN DỮ LIỆU BẢNG "Department"
+INSERT INTO Department (DepartmentName)
+VALUES
+(N'Marketing' ),
+(N'Sale' ),
+(N'Bảo vệ' ),
+(N'Nhân sự' ),
+(N'Kỹ thuật' ),
+(N'Tài chính' ),
+(N'Phó giám đốc'),
+(N'Giám đốc' ),
+(N'Thư kí' ),
+(N'No person' ),
+(N'Bán hàng' );
+
+
+-- CHÈN DỮ LIỆU BẢNG "Position"
+INSERT INTO Position (PositionName )
+VALUES 
+('Dev' ),
+('Test' ),
+('Scrum Master'),
+('PM' );
+
+
+-- CHÈN DỮ LIỆU BẢNG "Account"
+INSERT INTO `Account`(Email , Username, FullName , DepartmentID , PositionID, CreateDate)
+VALUES ('Email1@gmail.com' , 'Username1' ,'Fullname1' , '5' , '1' ,'2020-03-05'),
+('Email2@gmail.com' , 'Username2' ,'Fullname2' , '1' , '2' ,'2020-03-05'),
+('Email3@gmail.com' , 'Username3' ,'Fullname3', '2' , '2' ,'2020-03-07'),
+('Email4@gmail.com' , 'Username4' ,'Fullname4', '3' , '4' ,'2020-03-08'),
+('Email5@gmail.com' , 'Username5' ,'Fullname5', '4' , '4' ,'2020-03-10'),
+('Email6@gmail.com' , 'Username6' ,'Fullname6', '6' , '3' ,'2020-04-05'),
+('Email7@gmail.com' , 'Username7' ,'Fullname7', '2' , '2' , NULL ),
+('Email8@gmail.com' , 'Username8' ,'Fullname8', '8' , '1' ,'2020-04-07'),
+('Email9@gmail.com' , 'Username9' ,'Fullname9' , '2' , '2' ,'2020-04-07'),
+('Email10@gmail.com' , 'Username10' ,'Fullname10' , '10' , '1' ,'2020-04-09'),
+('Email11@gmail.com' , 'Username11' ,'Fullname11' , '10' , '1' , DEFAULT),
+('Email12@gmail.com' , 'Username12' ,'Fullname12' , '10' , '1' , DEFAULT);
+
+
+-- CHÈN DỮ LIỆU BẢNG "Group"
+INSERT INTO `Group` ( GroupName , CreatorID , CreateDate)
+VALUES 
+(N'Testing System' , 5 ,'2019-03-05'),
+(N'Development' , 1,'2020-03-07'),
+(N'VTI Sale 01' , 2 ,'2020-03-09'),
+(N'VTI Sale 02' , 3 ,'2020-03-10'),
+(N'VTI Sale 03' , 4 ,'2020-03-28'),
+(N'VTI Creator' , 6 ,'2020-04-06'),
+(N'VTI Marketing 01' , 7 ,'2020-04-07'),
+(N'Management' , 8 ,'2020-04-08'),
+(N'Chat with love' , 9 ,'2020-04-09'),
+(N'Vi Ti Ai' , 10 ,'2020-04-10');
+
+
+-- CHÈN DỮ LIỆU BẢNG "GroupAccount"
+INSERT INTO `GroupAccount` ( GroupID , AccountID , JoinDate )
+VALUES 
+( 1 , 1 ,'2019-03-05'),
+( 1 , 2 ,'2020-03-07'),
+( 3 , 3 ,'2020-03-09'),
+( 3 , 4 ,'2020-03-10'),
+( 5 , 5 ,'2020-03-28'),
+( 1 , 3 ,'2020-04-06'),
+( 1 , 7 ,'2020-04-07'),
+( 8 , 3 ,'2020-04-08'),
+( 1 , 9 ,'2020-04-09'),
+( 10 , 10 ,'2020-04-10');
+
+
+-- CHÈN DỮ LIỆU BẢNG "TypeQuestion"
+INSERT INTO TypeQuestion (TypeName )
+VALUES 
+('Essay' ),
+('Multiple-Choice' );
+
+
+-- CHÈN DỮ LIỆU BẢNG "CategoryQuestion"
+INSERT INTO CategoryQuestion (CategoryName )
+VALUES 
+('Java' ),
+('ASP.NET' ),
+('ADO.NET' ),
+('SQL' ),
+('Postman' ),
+('Ruby' ),
+('Python' ),
+('C++' ),
+('C Sharp' ),
+('PHP' );
+
+
+-- CHÈN DỮ LIỆU BẢNG "Question"
+INSERT INTO Question (Content , CategoryID, TypeID , CreatorID , CreateDate )
+VALUES 
+(N'Câu hỏi về Java' , 1 , '1' , '2' ,'2020-04-05'),
+(N'Câu Hỏi về PHP' , 10 , '2' , '2' ,'2020-04-05'),
+(N'Hỏi về C#' , 9 , '2' , '3' ,'2020-04-06'),
+(N'Hỏi về Ruby' , 6 , '1' , '4' ,'2020-04-06'),
+(N'Hỏi về Postman' , 5 , '1' , '5' ,'2020-04-06'),
+(N'Hỏi về ADO.NET' , 3 , '2' , '6' ,'2020-04-06'),
+(N'Hỏi về ASP.NET' , 2 , '1' , '7' ,'2020-04-06'),
+(N'Hỏi về C++' , 8 , '1' , '8' ,'2020-04-07'),
+(N'Hỏi về SQL' , 4 , '2' , '9' ,'2020-04-07'),
+(N'Hỏi về Python' , 7 , '1' , '10' ,'2020-04-07');
+
+
+-- CHÈN DỮ LIỆU BẢNG "Answer"
+INSERT INTO Answer ( Content , QuestionID , isCorrect )
+VALUES 
+(N'Trả lời 01' , 1 , 0 ),
+(N'Trả lời 02' , 1 , 1 ),
+(N'Trả lời 03', 1 , 0 ),
+(N'Trả lời 04', 1 , 1 ),
+(N'Trả lời 05', 2 , 1 ),
+(N'Trả lời 06', 3 , 1 ),
+(N'Trả lời 07', 4 , 0 ),
+(N'Trả lời 08', 8 , 0 ),
+(N'Trả lời 09', 9 , 1 ),
+(N'Trả lời 10', 10 , 1 );
+
+
+-- CHÈN DỮ LIỆU BẢNG "Exam"
+INSERT INTO Exam (`Code` , Title , CategoryID , Duration , CreatorID , CreateDate )
+VALUES 
+('VTIQ001' , N'Đề thi C#' , 1 , 60 , '5' ,'2019-04-05'),             --  N'Đề thi C#' dùng để chèn tiếng việt
+('VTIQ002' , N'Đề thi PHP' , 10 , 60 , '2' ,'2019-04-05'),
+('VTIQ003' , N'Đề thi C++' , 9 , 120 , '2' ,'2019-04-07'),
+('VTIQ004' , N'Đề thi Java' , 6 , 60 , '3' ,'2020-04-08'),
+('VTIQ005' , N'Đề thi Ruby' , 5 , 120 , '4' ,'2020-04-10'),
+('VTIQ006' , N'Đề thi Postman' , 3 , 60 , '6' ,'2020-04-05'),
+('VTIQ007' , N'Đề thi SQL' , 2 , 60 , '7' ,'2020-04-05'),
+('VTIQ008' , N'Đề thi Python' , 8 , 60 , '8' ,'2020-04-07'),
+('VTIQ009' , N'Đề thi ADO.NET' , 4 , 90 , '9' ,'2020-04-07'),
+('VTIQ010' , N'Đề thi ASP.NET' , 7 , 90 , '10' ,'2020-04-08');
+
+
+-- CHÈN DỮ LIỆU BẢNG "ExamQuestion"
+INSERT INTO ExamQuestion(ExamID , QuestionID )
+VALUES 
+( 1 , 5 ),
+( 2 , 10 ),
+( 3 , 4 ),
+( 4 , 3 ),
+( 5 , 7 ),
+( 6 , 10 ),
+( 7 , 2 ),
+( 8 , 10 ),
+( 9 , 9 ),
+( 10 , 8 );
